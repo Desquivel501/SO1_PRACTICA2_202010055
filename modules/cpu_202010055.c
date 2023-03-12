@@ -17,41 +17,21 @@ MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Sistemas Operativos 1 - Practica 2 - Modulo CPU");
 MODULE_AUTHOR("Derek Esquivel Diaz");
 
-void dfs(struct task_struct *task, struct seq_file *archivo, int depth) {
+void getProcesses(struct task_struct *task, struct seq_file *archivo) {
 	struct task_struct *child;
 	struct list_head *list; 
-	seq_printf(archivo, "Process ID: %d\t User ID: %d\t Name: %-20s State: %d\t\n",task->pid, task->cred->uid,task->comm, task->__state);
+    /* "Process ID, User ID, Process Name, State, Parent */
+	seq_printf(archivo, "%d,%d,%-20s,%d,%d\n",task->pid, task->cred->uid,task->comm, task->__state, task->parent->pid);
 	list_for_each(list, &task->children) { 
-        depth = depth + 1;
-
-        // int j;
-        // for (j = 0; j < (1 + depth); ++j) {
-        //     seq_printf (archivo, " ");  /* Or putchar('#') */
-        // }   
-        
 		child = list_entry(list, struct task_struct, sibling);
-		dfs(child, archivo, depth);
+		getProcesses(child, archivo);
 	}
-}
-
-void test_tasks_init(struct seq_file *archivo)
-{
-    struct task_struct *task_list;
-    unsigned int process_count = 0;
-    for_each_process(task_list) {
-        seq_printf(archivo, "Process: %-20s\t PID:[%d]\t Parent:[%d]\t State:%d\n", 
-                task_list->comm, task_list->pid, task_list->parent->pid, task_list->__state);
-        process_count++;    
-    }
-    seq_printf(archivo, "Number of processes:%u\n", process_count);
 }
 
 
 static int escribir(struct seq_file *archivo, void *v)
-{
-    int depth = 0;    
-    // dfs(&init_task, archivo, depth); 
-    test_tasks_init(archivo);
+{   
+    getProcesses(&init_task, archivo); 
     return 0;
 }
 
