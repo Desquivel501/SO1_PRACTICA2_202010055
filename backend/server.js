@@ -29,15 +29,6 @@ app.get("/", function(req, res) {
 
 
 app.get("/monitor", function(req, res) {
-
-    // var json_res
-
-    // connection.query('SELECT * FROM MONITOR', (err, rows, fields) => {
-
-    // console.log(rows[0].CPU_FREE)
-    // json_res = rows
-    // })
-    
     connection.query("SELECT * FROM MONITOR ORDER BY ID DESC LIMIT 1", function (err, data, fields) {
         if(err) return next(new AppError(err))
         res.status(200).json({
@@ -46,8 +37,36 @@ app.get("/monitor", function(req, res) {
           data: data,
         });
       });
+});
 
-    
+app.get("/processes", function(req, res) {
+  connection.query("SELECT * FROM PROCESSES", function (err, data, fields) {
+      if(err) return next(new AppError(err))
+      res.status(200).json({
+        status: "success",
+        length: data?.length,
+        data: data,
+      });
+    });
+});
+
+
+app.get("/processes/:id", function(req, res) {
+  connection.query("SELECT * FROM PROCESSES WHERE PARENT = " + req.params.id + " AND PID != PARENT", function (err, data, fields) {
+      if(err) return next(new AppError(err))
+      res.status(200).json({
+        status: "success",
+        length: data?.length,
+        data: data,
+      });
+    });
+
+    // console.log(req.params.id)
+
+    // res.status(200).json({
+    //   status: "success"
+    // });
+
 
 });
 

@@ -19,7 +19,8 @@ import Collapse from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPersonRunning, faMoon, faHand, faSkull, faEarthAmericas, faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons'
-import * as React from 'react';
+import React, { useEffect, useState } from "react"; 
+import TableContainer from '@mui/material/TableContainer';
 
 const statusMap = {
   pending: 'warning',
@@ -29,13 +30,29 @@ const statusMap = {
 
 export const OverviewListaProcesos = (props) => {
   const { orders = [], sx } = props;
+
+  // const [orders, setOrders] = useState([]) 
+
+  // useEffect(() => {
+  //   fetch('http://127.0.0.1:5000/processes', {
+  //     method: 'GET',
+  //     headers: {
+  //       'Content-Type':'application/json'
+  //     }
+  //   })
+  //   .then(resp => resp.json())
+  //   .then(data => {  
+  //     setOrders(data.data)
+  //     console.log(orders)         
+  //   }).catch(console.error); 
+  // },[]);
   
 
   return (
     <Card sx={sx}>
-      <Scrollbar sx={{ flexGrow: 1 }}>
-        <Box sx={{ minWidth: 800 }}>
-          <Table>
+
+        <TableContainer sx={{ maxHeight: 800 }}>
+          <Table stickyHeader>
             <TableHead>
               <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
                 <TableCell>
@@ -51,52 +68,68 @@ export const OverviewListaProcesos = (props) => {
                   Estado
                 </TableCell>
                 <TableCell>
-                  Ram (%)
+                  Ram (Mb)
                 </TableCell>
                 <TableCell>
                   Hijos
                 </TableCell>
-              </TableRow>
-              
-              
-
-              
+              </TableRow> 
             </TableHead>
-
 
             <TableBody>
               {orders.map((order) => {
-                const [open, setOpen] = React.useState(false);
+                const [open, setOpen] = useState(false);
+                const [data, setData] = useState([]);
+                // console.log(order)
 
+                const getList = event => {
+
+                  let id = event.currentTarget.id
+                  console.log(id)
+
+                  fetch('http://127.0.0.1:5000/processes/' + id , {
+                    method: 'GET',
+                    headers: {
+                      'Content-Type':'application/json'
+                    }
+                  })
+                  .then(resp => resp.json())
+                  .then(data => {  
+                      console.log(data.data)
+                      setData(data.data)      
+                  }).catch(console.error); 
+
+                  setOpen(!open)
+                }
+                
                 return (
                   <React.Fragment>
                     <TableRow
                       hover
-                      key={order.id}
+                      key={order.PID}
                     >
                       <TableCell>
-                        {order.ref}
+                        {order.PID}
                       </TableCell>
                       <TableCell>
-                        {order.name}
+                        {order.PROCESS_NAME}
                       </TableCell>
                       <TableCell>
-                        Usuario
+                        {order.USERNAME}
                       </TableCell>
                       <TableCell>
-                        <SeverityPill color={statusMap[order.status]}>
-                          {order.status}
-                        </SeverityPill>
+                        {order.STATE}
                       </TableCell>
                       <TableCell>
-                        0
+                        {order.RAM}
                       </TableCell>
 
                       <TableCell>
                         <IconButton
                           aria-label="expand row"
                           size="small"
-                          onClick={() => setOpen(!open)}
+                          onClick={getList}
+                          id={order.PID}
                         >
                           {open ? <FontAwesomeIcon icon={faChevronUp} size = '2x' /> : <FontAwesomeIcon icon={faChevronDown} size = '2x' />}
                         </IconButton>
@@ -112,6 +145,30 @@ export const OverviewListaProcesos = (props) => {
                           <Typography variant="h6" gutterBottom component="tr">
                             Procesos Hijos
                           </Typography>
+
+                          <TableContainer sx={{ maxHeight: 400 }}>
+                          <Table size="small" stickyHeader>
+                            <TableHead>
+                              <TableRow>
+                                <TableCell>PID</TableCell>
+                                <TableCell>Proceso</TableCell>
+                                <TableCell>Usuario</TableCell>
+                                <TableCell>Estado</TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+
+                              {data.map((val) => (
+                                <TableRow key={val.PID}>
+                                  <TableCell>{val.PID}</TableCell>
+                                  <TableCell>{val.PROCESS_NAME}</TableCell>
+                                  <TableCell>{val.USERNAME}</TableCell>
+                                  <TableCell>{val.STATE}</TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                          </TableContainer>            
                   
                         </Box>
                       </Collapse>
@@ -124,8 +181,8 @@ export const OverviewListaProcesos = (props) => {
               })}
             </TableBody>
           </Table>
-        </Box>
-      </Scrollbar>
+        </TableContainer>
+
       <Divider />
     </Card>
   );
