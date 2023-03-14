@@ -10,7 +10,10 @@
 /* Header para usar la lib seq_file y manejar el archivo en /proc*/
 #include <linux/seq_file.h>
 
-// #include <linux/sysinfo.h>
+#include <linux/hugetlb.h>
+
+#include <linux/sysinfo.h>
+
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Sistemas Operativos 1 - Practica 2 - Modulo RAM");
@@ -19,13 +22,11 @@ MODULE_AUTHOR("Derek Esquivel Diaz");
 static int escribir(struct seq_file *archivo, void *v)
 {
     struct sysinfo info;
+    si_meminfo(&info);
+         
+    // Buffer, Free, Total, cache
+    seq_printf(archivo, "%lu,%lu,%lu,%d,%lu\n",info.bufferram ,info.freeram, info.totalram, info.mem_unit);
     
-    seq_printf(archivo, "%lu,%lu\n", info.freeram, info.totalram);
-
-    // seq_printf(archivo, "Total Ram: %lluk\tFree: %lluk\n",
-    //             info.totalram *(unsigned long long)info.mem_unit / 1024,
-    //             info.freeram *(unsigned long long)info.mem_unit/ 1024);
-
     return 0;
 }
 
