@@ -47,7 +47,7 @@ export default function Home() {
     .then(resp => resp.json())
     .then(data => {  
       setListp(data.data)
-      console.log(listp)         
+      console.log(data.data)         
     }).catch(console.error); 
   }
 

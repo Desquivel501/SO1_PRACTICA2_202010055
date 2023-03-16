@@ -16,11 +16,7 @@
 #include <linux/mm.h>          
 
 #include <linux/tick.h>
-
-
 #include <linux/kernel_stat.h>
-#include <linux/time.h>
-
 #include <linux/timer.h>
 
 

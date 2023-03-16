@@ -22,13 +22,6 @@ import { faPersonRunning, faMoon, faHand, faSkull, faEarthAmericas, faChevronUp,
 import React, { useEffect, useState } from "react"; 
 import TableContainer from '@mui/material/TableContainer';
 
-const statusMap = {
-  pending: 'warning',
-  delivered: 'success',
-  refunded: 'error'
-};
-
-
 function Row(props) {
   const { order } = props;
   const [open, setOpen] = useState(false);
@@ -74,7 +67,7 @@ function Row(props) {
           {order.STATE}
         </TableCell>
         <TableCell>
-          {order.RAM}
+          {order.RAM}%
         </TableCell>
 
         <TableCell>
@@ -156,7 +149,7 @@ export const OverviewListaProcesos = (props) => {
                   Estado
                 </TableCell>
                 <TableCell>
-                  Ram (Mb)
+                  Ram (%)
                 </TableCell>
                 <TableCell>
                   Hijos
@@ -166,8 +159,9 @@ export const OverviewListaProcesos = (props) => {
 
             <TableBody>
               {
+                // console.log(orders)
                 orders.map((order) => (
-                    <Row key={order.PID} row={order} />
+                    <Row key={order.PID} order={order} />
                 ))
               }
 

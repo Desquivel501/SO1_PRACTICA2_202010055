@@ -24,7 +24,48 @@ func main() {
 		log.Fatal(err)
 	}
 
+	//--------------------------------------------------------------------------------------------------
+
 	for {
+
+		usage_ram := 0.0
+		total_mem := 0.0
+
+		cmd := exec.Command("sh", "-c", "cat /proc/ram_202010055")
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			fmt.Println(err)
+		}
+		output := string(out[:])
+		r := csv.NewReader(strings.NewReader(output))
+		for {
+			record, err := r.Read()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				fmt.Println("Here")
+				log.Fatal(err)
+			}
+
+			buffer_mem, err := strconv.ParseFloat(record[0], 64)
+			free_mem, err := strconv.ParseFloat(record[1], 64)
+			total_mem, err = strconv.ParseFloat(record[2], 64)
+			mem_unir, err := strconv.ParseFloat(record[3], 64)
+
+			buffer_mem = (buffer_mem * mem_unir) / (1024 * 1024)
+			total_mem = (total_mem * mem_unir) / (1024 * 1024)
+			free_mem = (free_mem * mem_unir) / (1024 * 1024)
+
+			usage_ram = (total_mem - (free_mem + buffer_mem)) / total_mem
+
+			fmt.Printf("Total: %f, Free: %f, Buffer: %f\n", total_mem, free_mem, buffer_mem)
+			fmt.Printf("Usado: %f%%\n", usage_ram*100)
+		}
+
+		usage_ram = usage_ram * 100
+
+		fmt.Println("------------------------------------------------")
 
 		_, err = db.Exec("DELETE FROM PROCESSES")
 		if err != nil {
@@ -34,14 +75,14 @@ func main() {
 		idle := 0
 		total := 0
 
-		cmd := exec.Command("sh", "-c", "cat /proc/cpu_202010055")
-		out, err := cmd.CombinedOutput()
+		cmd = exec.Command("sh", "-c", "cat /proc/cpu_202010055")
+		out, err = cmd.CombinedOutput()
 		if err != nil {
 			fmt.Println(err)
 		}
-		output := string(out[:])
+		output = string(out[:])
 
-		r := csv.NewReader(strings.NewReader(output))
+		r = csv.NewReader(strings.NewReader(output))
 
 		sqlStr := "INSERT INTO PROCESSES(PID, USERNAME, PROCESS_NAME, STATE, PARENT, RAM) VALUES"
 		vals := []interface{}{}
@@ -84,9 +125,10 @@ func main() {
 			STATE, err := strconv.Atoi(record[3])
 			PARENT, err := strconv.Atoi(record[4])
 			RAM, err := strconv.Atoi(record[5])
+			RAM_P := (float64(RAM) / total_mem) * 100
 
 			sqlStr += "(?, ?, ?, ?, ?, ?),"
-			vals = append(vals, PID, record[1], record[2], STATE, PARENT, RAM)
+			vals = append(vals, PID, record[1], record[2], STATE, PARENT, RAM_P)
 
 			if STATE == 0 {
 				RUNNING += 1
@@ -108,44 +150,6 @@ func main() {
 		sqlStr = sqlStr[0 : len(sqlStr)-1]
 		stmt, _ := db.Prepare(sqlStr)
 		stmt.Exec(vals...)
-
-		fmt.Println("------------------------------------------------")
-
-		usage_ram := 0.0
-
-		cmd = exec.Command("sh", "-c", "cat /proc/ram_202010055")
-		out, err = cmd.CombinedOutput()
-		if err != nil {
-			fmt.Println(err)
-		}
-		output = string(out[:])
-		r = csv.NewReader(strings.NewReader(output))
-		for {
-			record, err := r.Read()
-			if err == io.EOF {
-				break
-			}
-			if err != nil {
-				fmt.Println("Here")
-				log.Fatal(err)
-			}
-
-			buffer_mem, err := strconv.ParseFloat(record[0], 64)
-			free_mem, err := strconv.ParseFloat(record[1], 64)
-			total_mem, err := strconv.ParseFloat(record[2], 64)
-			mem_unir, err := strconv.ParseFloat(record[3], 64)
-
-			buffer_mem = (buffer_mem * mem_unir) / (1024 * 1024)
-			total_mem = (total_mem * mem_unir) / (1024 * 1024)
-			free_mem = (free_mem * mem_unir) / (1024 * 1024)
-
-			usage_ram = (total_mem - (free_mem + buffer_mem)) / total_mem
-
-			fmt.Printf("Total: %f, Free: %f, Buffer: %f\n", total_mem, free_mem, buffer_mem)
-			fmt.Printf("Usado: %f%%\n", usage_ram*100)
-		}
-
-		usage_ram = usage_ram * 100
 
 		sql := fmt.Sprintf("INSERT INTO MONITOR(CPU_FREE, RAM_FREE, RUNNING, SUSPENDED, STOPPED, ZOMBIE, TOTAL) VALUES (%f, %f, %d, %d, %d, %d, %d)", 100-usage_cpu, 100-usage_ram, RUNNING, SUSPENDED, STOPPED, ZOMBIE, TOTAL_P)
 		_, err = db.Exec(sql)
