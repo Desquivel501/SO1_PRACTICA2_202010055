@@ -22,6 +22,14 @@ import { faPersonRunning, faMoon, faHand, faSkull, faEarthAmericas, faChevronUp,
 import React, { useEffect, useState } from "react"; 
 import TableContainer from '@mui/material/TableContainer';
 
+const statusMap = {
+  0: 'En ejecucion',
+  4 : 'Zombie',
+  8 : 'Detenido',
+  1 : 'Suspendido',
+  1026 : 'Suspendido'
+};
+
 function Row(props) {
   const { order } = props;
   const [open, setOpen] = useState(false);
@@ -64,7 +72,7 @@ function Row(props) {
           {order.USERNAME}
         </TableCell>
         <TableCell>
-          {order.STATE}
+          {statusMap[order.STATE]}
         </TableCell>
         <TableCell>
           {order.RAM}%
@@ -109,7 +117,7 @@ function Row(props) {
                     <TableCell>{val.PID}</TableCell>
                     <TableCell>{val.PROCESS_NAME}</TableCell>
                     <TableCell>{val.USERNAME}</TableCell>
-                    <TableCell>{val.STATE}</TableCell>
+                    <TableCell>{statusMap[val.STATE]}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
