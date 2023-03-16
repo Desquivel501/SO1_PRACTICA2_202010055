@@ -1,0 +1,1 @@
+cmd_/home/desquivel/Documents/SO1_PRACTICA2_202010055/modules/Module.symvers := sed 's/ko$$/o/' /home/desquivel/Documents/SO1_PRACTICA2_202010055/modules/modules.order | scripts/mod/modpost -m -a  -o /home/desquivel/Documents/SO1_PRACTICA2_202010055/modules/Module.symvers -e -i Module.symvers   -T -

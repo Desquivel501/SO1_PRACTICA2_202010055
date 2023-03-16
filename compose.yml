@@ -1,0 +1,27 @@
+version: "3" 
+
+services:
+  api:
+    container_name: api_practica2_202010055 
+    restart: always 
+    image: desquivel501/api_practica2_202010055 
+    environment:
+      MYSQL_DATABASE: 'dbpractica1'
+      MYSQL_ROOT_PASSWORD: 'secret'
+    ports:
+      - "5000:5000" 
+    expose:
+      - '5000'
+
+  frontend:
+    container_name: frontend_practica2_202010055
+    restart: always
+    image: desquivel501/frontend_practica2_202010055
+    ports:
+      - "3000:3000"
+    expose:
+      - '3000'
+    depends_on: 
+      - api
+    links: 
+      - api
