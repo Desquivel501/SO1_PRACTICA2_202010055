@@ -41,11 +41,12 @@ function Row(props) {
     let id = event.currentTarget.id
     console.log(id)
 
-    fetch('http://127.0.0.1:5000/processes/' + id , {
+    fetch('http://34.121.155.122:5000/processes/' + id , {
       method: 'GET',
       headers: {
-        'Content-Type':'application/json'
-      }
+        'Content-Type':'application/json',
+        'Access-Control-Allow-Origin_Origin': '*'
+    }
     })
     .then(resp => resp.json())
     .then(data => {  

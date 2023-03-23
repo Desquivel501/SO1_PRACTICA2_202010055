@@ -19,10 +19,11 @@ export default function Home() {
   useEffect(() => {
     const interval = setInterval(() => {
 
-      fetch('http://127.0.0.1:5000/monitor', {
+      fetch('http://34.121.155.122:5000/monitor', {
           method: 'GET',
           headers: {
-              'Content-Type':'application/json'
+              'Content-Type':'application/json',
+              'Access-Control-Allow-Origin_Origin': '*'
           }
           })
           .then(resp => resp.json())
@@ -38,11 +39,12 @@ export default function Home() {
   }, []);
 
   const getList = () => {
-    fetch('http://127.0.0.1:5000/processes', {
+    fetch('http://34.121.155.122:5000/processes', {
       method: 'GET',
       headers: {
-        'Content-Type':'application/json'
-      }
+        'Content-Type':'application/json',
+        'Access-Control-Allow-Origin_Origin': '*'
+    }
     })
     .then(resp => resp.json())
     .then(data => {  
