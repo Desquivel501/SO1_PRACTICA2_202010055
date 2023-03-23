@@ -14,6 +14,9 @@
 
 #include <linux/sysinfo.h>
 
+#include <linux/swap.h>
+
+#include <linux/mm.h>
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Sistemas Operativos 1 - Practica 2 - Modulo RAM");
@@ -23,9 +26,16 @@ static int escribir(struct seq_file *archivo, void *v)
 {
     struct sysinfo info;
     si_meminfo(&info);
+
+    long cache = global_node_page_state(NR_FILE_PAGES) - total_swapcache_pages() - info.bufferram;
+    if (cache < 0){
+        cache = 0;
+    }
+    cache = cache << (PAGE_SHIFT-10);
+
          
-    // Buffer, Free, Total, cache
-    seq_printf(archivo, "%lu,%lu,%lu,%d,%lu\n",info.bufferram ,info.freeram, info.totalram, info.mem_unit);
+    // Buffer, Free, Total, mem_unit
+    seq_printf(archivo, "%lu,%lu,%lu,%d,%lu\n",info.bufferram ,info.freeram, info.totalram, info.mem_unit, cache);
     
     return 0;
 }

@@ -52,14 +52,16 @@ func main() {
 			free_mem, err := strconv.ParseFloat(record[1], 64)
 			total_mem, err = strconv.ParseFloat(record[2], 64)
 			mem_unir, err := strconv.ParseFloat(record[3], 64)
+			cache, err := strconv.ParseFloat(record[4], 64)
 
 			buffer_mem = (buffer_mem * mem_unir) / (1024 * 1024)
 			total_mem = (total_mem * mem_unir) / (1024 * 1024)
 			free_mem = (free_mem * mem_unir) / (1024 * 1024)
+			cache = cache / 1024
 
-			usage_ram = (total_mem - (free_mem + buffer_mem)) / total_mem
+			usage_ram = (total_mem - (free_mem + buffer_mem + cache)) / total_mem
 
-			fmt.Printf("Total: %f, Free: %f, Buffer: %f\n", total_mem, free_mem, buffer_mem)
+			fmt.Printf("Total: %f, Free: %f, Buffer: %f, Cache: %f \n", total_mem, free_mem, buffer_mem, cache)
 			fmt.Printf("Usado: %f%%\n", usage_ram*100)
 		}
 
